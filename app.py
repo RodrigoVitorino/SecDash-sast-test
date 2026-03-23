@@ -1,3 +1,4 @@
+# vulnerabilidades intencionais para teste
 import sqlite3
 import os
 import subprocess
