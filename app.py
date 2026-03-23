@@ -1,30 +1,30 @@
-# vulnerabilidades intencionais para teste
 import sqlite3
-import os
 import subprocess
+import os
 
-# SQL Injection
+# SQL Injection - padrão que o CodeQL deteta garantidamente
 def get_user(username):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-    query = "SELECT * FROM users WHERE username = '" + username + "'"
-    cursor.execute(query)
+    cursor.execute("SELECT * FROM users WHERE username = '" + username + "'")
     return cursor.fetchall()
 
-# Path Traversal
-def read_file(path):
-    with open(path, "r") as f:
-        return f.read()
+# Command Injection - padrão detetado pelo CodeQL
+def list_files(directory):
+    result = subprocess.run(
+        "ls " + directory,
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+    return result.stdout
 
-# Command Injection
-def ping_host(host):
-    os.system("ping -c 1 " + host)
-
-# Hard-coded credentials
-DB_PASSWORD = "supersecret123"
-API_KEY = "ghp_fakekey1234567890abcdef"
+# Code Injection
+def evaluate_input(user_input):
+    return eval(user_input)
 
 if __name__ == "__main__":
-    print(get_user("admin"))
-    print(read_file("/etc/passwd"))
-    ping_host("localhost")
+    import sys
+    get_user(sys.argv[1])
+    list_files(sys.argv[2])
+    evaluate_input(sys.argv[3])
